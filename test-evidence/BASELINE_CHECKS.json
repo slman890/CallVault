@@ -1,0 +1,359 @@
+{
+  "date": "2026-10-11",
+  "baselineCommit": "9933d929e21cf8b65d16d6a47847d1fe1a033cae",
+  "appSourceUnchanged": true,
+  "apk": {
+    "file": "../CallVault-original-2.4.5-debug.apk",
+    "sha256": "e2e879c4d4cce769e00a390f8fd7d1fa0cabdcf23dfa762da852b4679a5adf5c",
+    "bytes": 87985110,
+    "applicationId": "com.baba.callvault",
+    "versionName": "2.4.5",
+    "versionCode": 20451,
+    "minSdk": 30,
+    "targetSdk": 36,
+    "abi": "arm64-v8a",
+    "debuggable": true,
+    "signatureVerification": "PASS"
+  },
+  "assembleDebug": {
+    "status": "PASS",
+    "exitCode": 0
+  },
+  "recordingJvmTests": {
+    "status": "PASS",
+    "counts": {
+      "suites": 69,
+      "tests": 580,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "hostConfiguration": "robolectric.conscryptMode=OFF",
+    "initialDefaultRun": {
+      "tests": 580,
+      "failures": 39,
+      "reason": "Android Conscrypt JNI unavailable on Windows"
+    }
+  },
+  "lintDebug": {
+    "status": "FAIL",
+    "errors": 31,
+    "warnings": 258,
+    "findings": [
+      {
+        "id": "MissingPermission",
+        "message": "Call requires permission which may be rejected by user: code should explicitly check to see if permission is available (with `checkPermission`) or explicitly handle a potential `SecurityException`",
+        "locations": [
+          {
+            "file": "app/src/main/java/com/baba/callvault/services/recording/VoipTelephonyGate.kt",
+            "line": "79"
+          }
+        ]
+      },
+      {
+        "id": "NewApi",
+        "message": "Call requires API level 33 (current min is 30): `android.content.AttributionSource#myAttributionSource`",
+        "locations": [
+          {
+            "file": "app/src/main/java/com/baba/callvault/server/BypassedAudioRecord.kt",
+            "line": "123"
+          }
+        ]
+      },
+      {
+        "id": "NewApi",
+        "message": "Call requires API level 31 (current min is 30): `getStopReason`",
+        "locations": [
+          {
+            "file": "app/src/main/java/com/baba/callvault/transcription/model/ModelDownloadWorker.kt",
+            "line": "247"
+          }
+        ]
+      },
+      {
+        "id": "NewApi",
+        "message": "Field requires API level 31 (current min is 30): `getStopReason`",
+        "locations": [
+          {
+            "file": "app/src/main/java/com/baba/callvault/transcription/model/ModelDownloadWorker.kt",
+            "line": "247"
+          }
+        ]
+      },
+      {
+        "id": "NewApi",
+        "message": "Call requires API level 31 (current min is 30): `getStopReason`",
+        "locations": [
+          {
+            "file": "app/src/main/java/com/baba/callvault/transcription/model/ModelDownloadWorker.kt",
+            "line": "259"
+          }
+        ]
+      },
+      {
+        "id": "NewApi",
+        "message": "Field requires API level 31 (current min is 30): `getStopReason`",
+        "locations": [
+          {
+            "file": "app/src/main/java/com/baba/callvault/transcription/model/ModelDownloadWorker.kt",
+            "line": "259"
+          }
+        ]
+      },
+      {
+        "id": "WrongConstant",
+        "message": "Must be one or more of: MediaCodec.BUFFER_FLAG_SYNC_FRAME, MediaCodec.BUFFER_FLAG_KEY_FRAME, MediaCodec.BUFFER_FLAG_CODEC_CONFIG, MediaCodec.BUFFER_FLAG_END_OF_STREAM, MediaCodec.BUFFER_FLAG_PARTIAL_FRAME, MediaCodec.BUFFER_FLAG_DECODE_ONLY, but could be MediaExtractor.SAMPLE_FLAG_SYNC, MediaExtractor.SAMPLE_FLAG_ENCRYPTED, MediaExtractor.SAMPLE_FLAG_PARTIAL_FRAME",
+        "locations": [
+          {
+            "file": "app/src/main/java/com/baba/callvault/data/merge/AudioConcat.kt",
+            "line": "127"
+          }
+        ]
+      },
+      {
+        "id": "WrongConstant",
+        "message": "Must be one or more of: MediaCodec.BUFFER_FLAG_SYNC_FRAME, MediaCodec.BUFFER_FLAG_KEY_FRAME, MediaCodec.BUFFER_FLAG_CODEC_CONFIG, MediaCodec.BUFFER_FLAG_END_OF_STREAM, MediaCodec.BUFFER_FLAG_PARTIAL_FRAME, MediaCodec.BUFFER_FLAG_DECODE_ONLY, but could be MediaExtractor.SAMPLE_FLAG_SYNC, MediaExtractor.SAMPLE_FLAG_ENCRYPTED, MediaExtractor.SAMPLE_FLAG_PARTIAL_FRAME",
+        "locations": [
+          {
+            "file": "app/src/main/java/com/baba/callvault/data/merge/AudioSplit.kt",
+            "line": "122"
+          }
+        ]
+      },
+      {
+        "id": "NonObservableLocale",
+        "message": "Reading locale in a non-observable way in a composable function",
+        "locations": [
+          {
+            "file": "app/src/main/java/com/baba/callvault/ui/screens/HomeScreen.kt",
+            "line": "3612"
+          }
+        ]
+      },
+      {
+        "id": "NonObservableLocale",
+        "message": "Reading locale in a non-observable way in a composable function",
+        "locations": [
+          {
+            "file": "app/src/main/java/com/baba/callvault/ui/screens/HomeScreen.kt",
+            "line": "3622"
+          }
+        ]
+      },
+      {
+        "id": "LocalContextGetResourceValueCall",
+        "message": "Querying resource values using LocalContext.current",
+        "locations": [
+          {
+            "file": "app/src/main/java/com/baba/callvault/ui/screens/PermissionsScreen.kt",
+            "line": "136"
+          }
+        ]
+      },
+      {
+        "id": "LocalContextGetResourceValueCall",
+        "message": "Querying resource values using LocalContext.current",
+        "locations": [
+          {
+            "file": "app/src/main/java/com/baba/callvault/ui/screens/SettingsScreen.kt",
+            "line": "289"
+          }
+        ]
+      },
+      {
+        "id": "LocalContextGetResourceValueCall",
+        "message": "Querying resource values using LocalContext.current",
+        "locations": [
+          {
+            "file": "app/src/main/java/com/baba/callvault/ui/screens/SettingsScreen.kt",
+            "line": "422"
+          }
+        ]
+      },
+      {
+        "id": "LocalContextGetResourceValueCall",
+        "message": "Querying resource values using LocalContext.current",
+        "locations": [
+          {
+            "file": "app/src/main/java/com/baba/callvault/ui/screens/SettingsScreen.kt",
+            "line": "423"
+          }
+        ]
+      },
+      {
+        "id": "LocalContextGetResourceValueCall",
+        "message": "Querying resource values using LocalContext.current",
+        "locations": [
+          {
+            "file": "app/src/main/java/com/baba/callvault/ui/screens/WizardScreen.kt",
+            "line": "131"
+          }
+        ]
+      },
+      {
+        "id": "MissingQuantity",
+        "message": "For locale \"pl\" (Polish) the following quantities should also be defined: `few` (e.g. \"2 miesiące\"), `many` (e.g. \"5 miesięcy\")",
+        "locations": [
+          {
+            "file": "app/src/main/res/values-pl/strings.xml",
+            "line": "4"
+          }
+        ]
+      },
+      {
+        "id": "MissingQuantity",
+        "message": "For locale \"ru\" (Russian) the following quantities should also be defined: `few` (e.g. \"из 2 книг за 2 дня\"), `many` (e.g. \"из 5 книг за 5 дней\")",
+        "locations": [
+          {
+            "file": "app/src/main/res/values-ru/strings.xml",
+            "line": "4"
+          }
+        ]
+      },
+      {
+        "id": "MissingQuantity",
+        "message": "For locale \"pl\" (Polish) the following quantities should also be defined: `few` (e.g. \"2 miesiące\"), `many` (e.g. \"5 miesięcy\")",
+        "locations": [
+          {
+            "file": "app/src/main/res/values-pl/strings.xml",
+            "line": "8"
+          }
+        ]
+      },
+      {
+        "id": "MissingQuantity",
+        "message": "For locale \"ru\" (Russian) the following quantities should also be defined: `few` (e.g. \"из 2 книг за 2 дня\"), `many` (e.g. \"из 5 книг за 5 дней\")",
+        "locations": [
+          {
+            "file": "app/src/main/res/values-ru/strings.xml",
+            "line": "8"
+          }
+        ]
+      },
+      {
+        "id": "MissingQuantity",
+        "message": "For locale \"pl\" (Polish) the following quantities should also be defined: `few` (e.g. \"2 miesiące\"), `many` (e.g. \"5 miesięcy\")",
+        "locations": [
+          {
+            "file": "app/src/main/res/values-pl/strings.xml",
+            "line": "12"
+          }
+        ]
+      },
+      {
+        "id": "MissingQuantity",
+        "message": "For locale \"ru\" (Russian) the following quantities should also be defined: `few` (e.g. \"из 2 книг за 2 дня\"), `many` (e.g. \"из 5 книг за 5 дней\")",
+        "locations": [
+          {
+            "file": "app/src/main/res/values-ru/strings.xml",
+            "line": "12"
+          }
+        ]
+      },
+      {
+        "id": "MissingQuantity",
+        "message": "For locale \"pl\" (Polish) the following quantities should also be defined: `few` (e.g. \"2 miesiące\"), `many` (e.g. \"5 miesięcy\")",
+        "locations": [
+          {
+            "file": "app/src/main/res/values-pl/strings.xml",
+            "line": "685"
+          }
+        ]
+      },
+      {
+        "id": "MissingQuantity",
+        "message": "For locale \"ru\" (Russian) the following quantities should also be defined: `few` (e.g. \"из 2 книг за 2 дня\"), `many` (e.g. \"из 5 книг за 5 дней\")",
+        "locations": [
+          {
+            "file": "app/src/main/res/values-ru/strings.xml",
+            "line": "685"
+          }
+        ]
+      },
+      {
+        "id": "MissingQuantity",
+        "message": "For locale \"pl\" (Polish) the following quantities should also be defined: `few` (e.g. \"2 miesiące\"), `many` (e.g. \"5 miesięcy\")",
+        "locations": [
+          {
+            "file": "app/src/main/res/values-pl/strings.xml",
+            "line": "689"
+          }
+        ]
+      },
+      {
+        "id": "MissingQuantity",
+        "message": "For locale \"ru\" (Russian) the following quantities should also be defined: `few` (e.g. \"из 2 книг за 2 дня\"), `many` (e.g. \"из 5 книг за 5 дней\")",
+        "locations": [
+          {
+            "file": "app/src/main/res/values-ru/strings.xml",
+            "line": "689"
+          }
+        ]
+      },
+      {
+        "id": "MissingQuantity",
+        "message": "For locale \"pl\" (Polish) the following quantities should also be defined: `few` (e.g. \"2 miesiące\"), `many` (e.g. \"5 miesięcy\")",
+        "locations": [
+          {
+            "file": "app/src/main/res/values-pl/strings.xml",
+            "line": "693"
+          }
+        ]
+      },
+      {
+        "id": "MissingQuantity",
+        "message": "For locale \"ru\" (Russian) the following quantities should also be defined: `few` (e.g. \"из 2 книг за 2 дня\"), `many` (e.g. \"из 5 книг за 5 дней\")",
+        "locations": [
+          {
+            "file": "app/src/main/res/values-ru/strings.xml",
+            "line": "693"
+          }
+        ]
+      },
+      {
+        "id": "MissingQuantity",
+        "message": "For locale \"pl\" (Polish) the following quantities should also be defined: `few` (e.g. \"2 miesiące\"), `many` (e.g. \"5 miesięcy\")",
+        "locations": [
+          {
+            "file": "app/src/main/res/values-pl/strings_home.xml",
+            "line": "93"
+          }
+        ]
+      },
+      {
+        "id": "MissingQuantity",
+        "message": "For locale \"ru\" (Russian) the following quantities should also be defined: `few` (e.g. \"из 2 книг за 2 дня\"), `many` (e.g. \"из 5 книг за 5 дней\")",
+        "locations": [
+          {
+            "file": "app/src/main/res/values-ru/strings_home.xml",
+            "line": "93"
+          }
+        ]
+      },
+      {
+        "id": "MissingQuantity",
+        "message": "For locale \"pl\" (Polish) the following quantities should also be defined: `few` (e.g. \"2 miesiące\"), `many` (e.g. \"5 miesięcy\")",
+        "locations": [
+          {
+            "file": "app/src/main/res/values-pl/strings_home.xml",
+            "line": "97"
+          }
+        ]
+      },
+      {
+        "id": "MissingQuantity",
+        "message": "For locale \"ru\" (Russian) the following quantities should also be defined: `few` (e.g. \"из 2 книг за 2 дня\"), `many` (e.g. \"из 5 книг за 5 дней\")",
+        "locations": [
+          {
+            "file": "app/src/main/res/values-ru/strings_home.xml",
+            "line": "97"
+          }
+        ]
+      }
+    ]
+  },
+  "physicalDeviceStartup": "NOT_RUN",
+  "recordingGate": "NOT_TESTED",
+  "carBluetoothGate": "NOT_TESTED",
+  "releaseBuild": "DEFERRED_UNTIL_RECORDING_GATE"
+}

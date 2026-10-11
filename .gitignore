@@ -22,3 +22,6 @@ docs/superpowers/
 # Native (CMake/NDK) build cache
 .cxx/
 app/.cxx/
+
+# Local device/audio evidence must never be committed or uploaded.
+/test-evidence/private/

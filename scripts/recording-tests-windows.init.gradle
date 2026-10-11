@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Host tests only: conscrypt-android cannot load its Android JNI on Windows.
+// Robolectric supports ConscryptMode.OFF and then uses BouncyCastle.
+// This changes neither the APK nor its TLS provider, and skips no tests.
+gradle.beforeProject { project ->
+    project.tasks.withType(org.gradle.api.tasks.testing.Test).configureEach {
+        systemProperty 'robolectric.conscryptMode', 'OFF'
+    }
+}
