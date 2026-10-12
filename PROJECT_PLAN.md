@@ -2,6 +2,8 @@
 
 تاريخ التحقق: 2026-10-11. الفرع: `feature/local-call-assistant`.
 
+تحديث 2026-10-12: طلب المستخدم إصلاح تعليق التفريغ الموجود وتصنيف شريحة المكالمة وتقييم تطبيق اتصال موحد. أُنجزت تغييرات محددة لذلك في نسخة Local Call Assistant مستقلة؛ انظر `LOCAL_ASSISTANT_UPDATE.md` و`DIALER_INTEGRATION.md`. تبقى نتائج الهاتف وBluetooth غير مثبتة، ولا تعتبر هذه التغييرات اجتيازًا للبوابة أو إنجازًا للمراحل اللاحقة كاملة.
+
 المصدر: https://github.com/madkongo/CallVault
 الـFork: https://github.com/slman890/CallVault
 النسخة المرجعية: `9933d929e21cf8b65d16d6a47847d1fe1a033cae`، تعرض versionName `2.4.5` / versionCode `20451`، وتتقدم على tag `v2.4.5` بـ11 commit.

@@ -116,7 +116,11 @@ object RecordingsRepository {
         val localUri: Uri? = null,
         val driveUri: Uri? = null,
         val localSizeBytes: Long? = null,
-        val driveSizeBytes: Long? = null
+        val driveSizeBytes: Long? = null,
+        val simAccountKey: String? = null,
+        val simSlotIndex: Int? = null,
+        val simDisplayName: String? = null,
+        val simCarrierName: String? = null,
     )
 
     /** Friendly day format used for the Date facet keys (e.g. "Jun 11, 2026"). */
@@ -270,7 +274,11 @@ object RecordingsRepository {
             localUri = localUri,
             driveUri = driveUri,
             localSizeBytes = entry.localSizeBytes,
-            driveSizeBytes = entry.driveSizeBytes
+            driveSizeBytes = entry.driveSizeBytes,
+            simAccountKey = entry.simAccountKey,
+            simSlotIndex = entry.simSlotIndex,
+            simDisplayName = entry.simDisplayName,
+            simCarrierName = entry.simCarrierName,
         )
     }
 

@@ -694,6 +694,34 @@ class TranscriptionRunnerTest {
         )
     }
 
+    @Test
+    fun a_metadata_failure_does_not_leave_a_queued_spinner_or_block_the_next_file() = runBlocking {
+        catalogued("unreadable-metadata.ogg")
+        catalogued("readable-metadata.ogg")
+        val runner = TranscriptionRunner(context,
+            audioDurationMs = { uri -> if (uri.toString().contains("unreadable")) error("bad container") else 1000L },
+            onFinished = { _, _ -> },
+            transcriber = { _, _, _, _, _, _, _ -> listOf(TranscriptSegment(0, 1000, "test")) })
+        assertEquals(1, runner.runBatch(MODEL_ID, MODEL_PATH, LANGUAGE,
+            listOf("unreadable-metadata.ogg", "readable-metadata.ogg")))
+        assertEquals(TranscriptState.FAILED, transcript("unreadable-metadata.ogg")!!.transcript.state)
+        assertEquals(TranscriptState.DONE, transcript("readable-metadata.ogg")!!.transcript.state)
+        assertNotNull(transcript("unreadable-metadata.ogg")!!.transcript.errorMessage)
+        assertTrue(RecordingCatalog.all(context).any { it.displayName == "unreadable-metadata.ogg" })
+    }
+
+    @Test
+    fun a_stalled_codec_is_reported_and_keeps_the_recording() = runBlocking {
+        catalogued("stalled-codec.ogg")
+        val runner = TranscriptionRunner(context, onFinished = { _, _ -> },
+            transcriber = { _, _, _, _, _, _, _ -> throw AudioDecodeStalledException() })
+        assertEquals(0, runner.runBatch(MODEL_ID, MODEL_PATH, LANGUAGE, listOf("stalled-codec.ogg")))
+        assertEquals(TranscriptState.FAILED, transcript("stalled-codec.ogg")!!.transcript.state)
+        assertEquals(context.getString(com.baba.callvault.R.string.transcription_error_audio_stalled),
+            transcript("stalled-codec.ogg")!!.transcript.errorMessage)
+        assertTrue(RecordingCatalog.all(context).any { it.displayName == "stalled-codec.ogg" })
+    }
+
     private fun runnerReturning(segments: List<TranscriptSegment>) =
         TranscriptionRunner(context) { _, _, _, _, _, _, _ -> segments }
 

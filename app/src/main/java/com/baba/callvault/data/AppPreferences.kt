@@ -245,9 +245,9 @@ class AppPreferences(context: Context) {
         const val ADB_PAIRED = false
 
         // --- In-app updates ---
-        // Check for new GitHub releases (a tiny daily JSON query). ON by default; a found update
+        // This local fork checks GitHub only when explicitly enabled. A found update
         // surfaces as a Home banner + notification and installs only on an explicit user tap.
-        const val UPDATE_CHECK_ENABLED = true
+        const val UPDATE_CHECK_ENABLED = false
 
         // --- Persistent recorder server (CallVault Plan 5) ---
         // OFF by default: when false the existing local recording path runs unchanged. When true the

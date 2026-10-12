@@ -1,5 +1,14 @@
 # CallVault
 
+## Local Call Assistant development fork
+
+This repository is a modified development fork of CallVault
+(https://github.com/madkongo/CallVault), with transcription failure handling and
+per-call SIM metadata. The installed app is named Local Call Assistant and uses
+`io.github.slman890.localcallassistant`; its source namespace is retained for JNI compatibility.
+It is not endorsed by the CallVault or ShizuCallRecorder authors. The original
+attribution below and GPL-3.0 terms remain applicable.
+
 CallVault is a modified fork of ShizuCallRecorder
 (https://github.com/kitsumed/ShizuCallRecorder), Copyright (C) kitsumed (Med),
 licensed under GNU GPL-3.0 with additional Section 7 terms (see LICENSE).

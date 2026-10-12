@@ -43,6 +43,10 @@ object TranscriptionEngine {
     var isRunning: Boolean = false
         private set
 
+    @Volatile
+    var stage: TranscriptionStage = TranscriptionStage.LOADING
+        private set
+
     /**
      * What the last run spent getting ready before it looked at any audio: loading the model, and
      * unpacking the VAD model on the first run of the app's life.
@@ -298,6 +302,7 @@ object TranscriptionEngine {
         // Set before the decode, not after: decoding the audio is itself minutes of CPU on a long
         // call, and that is exactly when other background work must stand aside.
         isRunning = true
+        stage = TranscriptionStage.LOADING
         try {
         // Cut the call into passes so peak memory stops depending on its length: one slice is decoded
         // and held at a time. A call short enough to fit in a single pass produces exactly one chunk
@@ -316,7 +321,7 @@ object TranscriptionEngine {
         lastSetupMs = 0L
         val setupStartedAt = SystemClock.elapsedRealtime()
         val ptr = WhisperNative.initContext(modelPath, context.applicationInfo.nativeLibraryDir)
-        if (ptr == 0L) error("Could not load whisper model at $modelPath")
+        if (ptr == 0L) error("Could not load the selected model. Check its download, free RAM and native engine support.")
         try {
             val threads = preferredThreadCount()
             lastThreadCount = threads
@@ -346,6 +351,7 @@ object TranscriptionEngine {
                 // shorter — so naming a range here would quietly disable the guard that exists because
                 // a 45-second clip once transcribed for over eleven minutes.
                 val singlePass = plan.size == 1
+                stage = TranscriptionStage.DECODING
                 val slice = AudioDecoder.decodeRange(
                     context, uri,
                     fromMs = if (singlePass) 0L else chunk.decodeFromMs,
@@ -382,7 +388,9 @@ object TranscriptionEngine {
 
                 // Bracketed as tightly as possible around the native call: outside it, the counter
                 // still holds whatever the previous run left behind.
+                if (abortRequested.get()) return@forEachIndexed
                 whisperActive = true
+                stage = TranscriptionStage.RECOGNIZING
                 try {
                     WhisperNative.transcribe(
                         ptr, slice.audio, threads, language, prompt,
@@ -409,6 +417,7 @@ object TranscriptionEngine {
                 all += ChunkPlan.stitch(raw, chunk.copy(decodeFromMs = slice.startMs))
             }
 
+            stage = TranscriptionStage.SAVING
             all.also { AppLogger.i(TAG, "Produced ${it.size} segments across ${plan.size} pass(es)") }
         } finally {
             WhisperNative.freeContext(ptr)

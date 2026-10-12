@@ -24,7 +24,7 @@ object CallLogReader {
 
     private const val TAG = "CV:CallLogReader"
 
-    fun entriesSince(context: Context, watermark: Long): List<CallLogEntry> {
+    fun entriesSince(context: Context, watermark: Long, includeAccounts: Boolean = false): List<CallLogEntry> {
         if (!PermissionChecks.hasCallLogPermission(context)) {
             AppLogger.i(TAG, "No call-log permission; the setup sweep claims nothing this time")
             return emptyList()
@@ -33,7 +33,9 @@ object CallLogReader {
         return runCatching {
             context.contentResolver.query(
                 CallLog.Calls.CONTENT_URI,
-                arrayOf(CallLog.Calls.DATE, CallLog.Calls.DURATION, CallLog.Calls.TYPE, CallLog.Calls.CACHED_NAME),
+                (listOf(CallLog.Calls.DATE, CallLog.Calls.DURATION, CallLog.Calls.TYPE, CallLog.Calls.CACHED_NAME) +
+                    if (includeAccounts) listOf(CallLog.Calls.NUMBER, CallLog.Calls.PHONE_ACCOUNT_COMPONENT_NAME,
+                        CallLog.Calls.PHONE_ACCOUNT_ID) else emptyList()).toTypedArray(),
                 "${CallLog.Calls.DATE} > ?",
                 arrayOf(watermark.toString()),
                 "${CallLog.Calls.DATE} DESC"
@@ -47,7 +49,10 @@ object CallLogReader {
                                 startedAt = cursor.getLong(0),
                                 durationSeconds = cursor.getLong(1),
                                 isIncoming = type == CallLog.Calls.INCOMING_TYPE,
-                                label = cursor.getString(3)?.takeIf { it.isNotBlank() }
+                                label = cursor.getString(3)?.takeIf { it.isNotBlank() },
+                                phoneNumber = if (includeAccounts) cursor.getString(4) else null,
+                                accountComponent = if (includeAccounts) cursor.getString(5) else null,
+                                accountId = if (includeAccounts) cursor.getString(6) else null,
                             )
                         )
                     }

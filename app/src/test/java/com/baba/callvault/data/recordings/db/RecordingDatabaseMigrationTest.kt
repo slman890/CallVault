@@ -80,7 +80,7 @@ class RecordingDatabaseMigrationTest {
 
         // Act — Room validates the migrated schema against the entity as it opens.
         val db = Room.databaseBuilder(context, RecordingDatabase::class.java, name)
-            .addMigrations(RecordingDatabase.MIGRATION_1_2, RecordingDatabase.MIGRATION_2_3)
+            .addMigrations(RecordingDatabase.MIGRATION_1_2, RecordingDatabase.MIGRATION_2_3, RecordingDatabase.MIGRATION_3_4)
             .allowMainThreadQueries()
             .build()
         val rows = db.recordingDao().getAll()
@@ -94,6 +94,8 @@ class RecordingDatabaseMigrationTest {
         assertEquals(1_700_000_000_000L, entry.lastModified)
         // Never read yet, so it gets read exactly once — not never, and not every load.
         assertNull(entry.durationSeconds)
+        assertNull(entry.simAccountKey)
+        assertNull(entry.simSlotIndex)
         db.close()
     }
 
@@ -104,7 +106,7 @@ class RecordingDatabaseMigrationTest {
 
         // Act
         val db = Room.databaseBuilder(context, RecordingDatabase::class.java, name)
-            .addMigrations(RecordingDatabase.MIGRATION_1_2, RecordingDatabase.MIGRATION_2_3)
+            .addMigrations(RecordingDatabase.MIGRATION_1_2, RecordingDatabase.MIGRATION_2_3, RecordingDatabase.MIGRATION_3_4)
             .allowMainThreadQueries()
             .build()
 
@@ -122,7 +124,7 @@ class RecordingDatabaseMigrationTest {
         // Arrange
         seedVersion1()
         val db = Room.databaseBuilder(context, RecordingDatabase::class.java, name)
-            .addMigrations(RecordingDatabase.MIGRATION_1_2, RecordingDatabase.MIGRATION_2_3)
+            .addMigrations(RecordingDatabase.MIGRATION_1_2, RecordingDatabase.MIGRATION_2_3, RecordingDatabase.MIGRATION_3_4)
             .allowMainThreadQueries()
             .build()
 
@@ -131,6 +133,25 @@ class RecordingDatabaseMigrationTest {
 
         // Assert
         assertEquals(312L, db.recordingDao().getAll().single().durationSeconds)
+        db.close()
+    }
+
+    @Test
+    fun sim_snapshot_survives_copy_changes_after_the_v1_to_v4_migration() = runBlocking {
+        seedVersion1()
+        val db = Room.databaseBuilder(context, RecordingDatabase::class.java, name)
+            .addMigrations(RecordingDatabase.MIGRATION_1_2, RecordingDatabase.MIGRATION_2_3, RecordingDatabase.MIGRATION_3_4)
+            .allowMainThreadQueries().build()
+        val recording = db.recordingDao().getAll().single().displayName
+        db.recordingDao().setSim(recording, "anonymous-account-key", 17, 1, "Work", "Carrier")
+        db.recordingDao().clearLocal(recording)
+        db.recordingDao().setDuration(recording, 60L)
+        val row = db.recordingDao().findByName(recording)!!
+        assertEquals("Work", row.simDisplayName)
+        assertEquals(1, row.simSlotIndex)
+        assertEquals("content://drive/a", row.driveUri)
+        assertEquals(60L, row.durationSeconds)
+        assertNull(row.localUri)
         db.close()
     }
 }

@@ -287,7 +287,11 @@ class AudioRecordingEngine {
      * Orchestrates the initialization and connection of the entire recording pipeline.
      * @throws PipelineInitializationException if any step of the initialization fails, with details for user-friendly and technical error reporting.
      */
+    var recordingStartedAtMs: Long = 0L
+        private set
+
     fun startPipeline(context: Service, metadata: RecordingMetadata, isCancelled: () -> Boolean = { false }) {
+        recordingStartedAtMs = System.currentTimeMillis()
         initializationMetadata = metadata
         // The daemon bring-up below can block for tens of seconds while it cold-starts (re-enable WD →
         // mDNS reconnect → relaunch). On this OEM the call frequently ENDS during that window. If we

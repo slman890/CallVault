@@ -47,5 +47,10 @@ data class RecordingEntry(
     val localSizeBytes: Long? = null,
     val driveSizeBytes: Long? = null,
     val lastModified: Long = 0L,
-    val durationSeconds: Long? = null
+    val durationSeconds: Long? = null,
+    val simAccountKey: String? = null,
+    val simSubscriptionId: Int? = null,
+    val simSlotIndex: Int? = null,
+    val simDisplayName: String? = null,
+    val simCarrierName: String? = null,
 )

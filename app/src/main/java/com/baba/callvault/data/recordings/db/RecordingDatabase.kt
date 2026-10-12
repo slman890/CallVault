@@ -19,18 +19,11 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * Room database hosting CallVault's recordings catalog. Single process. A plain
  * process-wide singleton ([get]) since there is no DI container in the app.
  *
- * The catalog is a derived, rebuildable cache (it can be re-seeded from the SAF folders), so schema
- * changes fall back to [RoomDatabase.Builder.fallbackToDestructiveMigration]: on a version bump the
- * table is recreated and the one-time import re-seeds it — no fragile hand-written migrations to
- * maintain.
- *
- * That fallback stays as the safety net, but a migration is written where dropping the table would
- * cost the user something real — and for `merge_parts` it would cost something unrecoverable, since
- * no folder walk can rediscover where one call ended and the next began. See [MIGRATION_2_3]. Re-seeding walks both SAF folders and then re-reads the length of
- * every recording, so a drop turns the first launch after an update into the slowest one — the exact
- * complaint [MIGRATION_1_2] exists to end.
+ * The catalog now also owns per-call SIM snapshots and the merge manifest. Neither can be rebuilt
+ * from audio files, so every schema upgrade uses explicit migrations and exports its schema.
+ * There is no destructive fallback: an unsupported upgrade must never silently discard metadata.
  */
-@Database(entities = [RecordingEntry::class, MergePartEntry::class], version = 3, exportSchema = false)
+@Database(entities = [RecordingEntry::class, MergePartEntry::class], version = 4, exportSchema = true)
 abstract class RecordingDatabase : RoomDatabase() {
 
     abstract fun recordingDao(): RecordingDao
@@ -82,14 +75,23 @@ abstract class RecordingDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: RecordingDatabase? = null
 
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE recordings ADD COLUMN simAccountKey TEXT")
+                db.execSQL("ALTER TABLE recordings ADD COLUMN simSubscriptionId INTEGER")
+                db.execSQL("ALTER TABLE recordings ADD COLUMN simSlotIndex INTEGER")
+                db.execSQL("ALTER TABLE recordings ADD COLUMN simDisplayName TEXT")
+                db.execSQL("ALTER TABLE recordings ADD COLUMN simCarrierName TEXT")
+            }
+        }
+
         fun get(context: Context): RecordingDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     RecordingDatabase::class.java,
                     "recordings.db"
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3)
-                    .fallbackToDestructiveMigration(dropAllTables = true)
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .build().also { INSTANCE = it }
             }
     }

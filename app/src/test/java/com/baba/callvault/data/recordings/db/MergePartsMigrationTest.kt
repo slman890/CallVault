@@ -64,7 +64,7 @@ class MergePartsMigrationTest {
 
     private fun openV3(): RecordingDatabase =
         Room.databaseBuilder(context, RecordingDatabase::class.java, name)
-            .addMigrations(RecordingDatabase.MIGRATION_1_2, RecordingDatabase.MIGRATION_2_3)
+            .addMigrations(RecordingDatabase.MIGRATION_1_2, RecordingDatabase.MIGRATION_2_3, RecordingDatabase.MIGRATION_3_4)
             .allowMainThreadQueries()
             .build()
 

@@ -14,6 +14,7 @@ import android.media.MediaCodec
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.net.Uri
+import android.os.SystemClock
 import com.baba.callvault.utils.AppLogger
 import java.nio.ByteOrder
 import kotlin.math.PI
@@ -502,6 +503,7 @@ object AudioDecoder {
         try {
             codec.configure(inputFormat, null, null, 0)
             codec.start()
+            val liveness = AudioDecodeLiveness(SystemClock.elapsedRealtime())
 
             val info = MediaCodec.BufferInfo()
             var sawInputEnd = false
@@ -512,6 +514,7 @@ object AudioDecoder {
                 // 1.5-hour call spent ~12 seconds here after Stop was tapped, still burning CPU. The
                 // check is per output buffer, so it costs nothing and reacts within milliseconds.
                 if (shouldStop()) throw InterruptedException("decode stopped")
+                liveness.requireResponsive(SystemClock.elapsedRealtime())
 
                 if (!sawInputEnd) {
                     val inIndex = codec.dequeueInputBuffer(DEQUEUE_TIMEOUT_US)
@@ -552,6 +555,7 @@ object AudioDecoder {
                     else -> if (outIndex >= 0) {
                         val buf = codec.getOutputBuffer(outIndex)!!
                         if (info.size > 0) {
+                            liveness.outputProduced(SystemClock.elapsedRealtime())
                             if (firstOutUs < 0L) firstOutUs = info.presentationTimeUs
                             // A view over the codec's own memory, sliced to exactly what it reported.
                             // slice() does not inherit byte order, so it is set on the view.

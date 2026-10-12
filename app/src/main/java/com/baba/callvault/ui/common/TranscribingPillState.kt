@@ -7,6 +7,7 @@
  */
 
 package com.baba.callvault.ui.common
+import com.baba.callvault.transcription.TranscriptionStage
 
 /**
  * What the Home pill is saying about transcription right now.
@@ -20,6 +21,7 @@ package com.baba.callvault.ui.common
  * a pill left on screen for ever because a finished worker keeps its last progress.
  */
 sealed interface TranscribingPillState {
+    val stage: TranscriptionStage? get() = null
 
     /** Whether this state claims Home's single `titleTrailing` slot from the support pill. */
     val occupiesTitleSlot: Boolean get() = this != Hidden
@@ -31,14 +33,16 @@ sealed interface TranscribingPillState {
     data object Starting : TranscribingPillState
 
     /** One recording, transcribed because the user asked for it. Shown without a count. */
-    data class Single(val current: String?, val percent: Int = 0) : TranscribingPillState
+    data class Single(val current: String?, val percent: Int = 0,
+        override val stage: TranscriptionStage? = null) : TranscribingPillState
 
     /** A backlog: which one is in hand, how many there are, and how far into this one. */
     data class Batch(
         val position: Int,
         val total: Int,
         val current: String?,
-        val percent: Int = 0
+        val percent: Int = 0,
+        override val stage: TranscriptionStage? = null,
     ) : TranscribingPillState
 
     /** The recording being worked on, when one is known. */
@@ -85,18 +89,20 @@ sealed interface TranscribingPillState {
             completed: Int,
             total: Int,
             current: String?,
-            percent: Int = 0
+            percent: Int = 0,
+            stage: TranscriptionStage? = null,
         ): TranscribingPillState = when {
             !isRunning -> Hidden
             total <= 0 -> Starting
-            total == 1 -> Single(current, percent)
+            total == 1 -> Single(current, percent, stage)
             // People count the item being worked on, not the ones behind it — so the first of twelve
             // is "1/12". Capped, so the last is "12/12" rather than "13/12".
             else -> Batch(
                 position = (completed + 1).coerceAtMost(total),
                 total = total,
                 current = current,
-                percent = percent
+                percent = percent,
+                stage = stage,
             )
         }
     }

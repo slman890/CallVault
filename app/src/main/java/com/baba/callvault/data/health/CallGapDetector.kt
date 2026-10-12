@@ -13,7 +13,10 @@ data class CallLogEntry(
     val startedAt: Long,
     val durationSeconds: Long,
     val isIncoming: Boolean,
-    val label: String?
+    val label: String?,
+    val phoneNumber: String? = null,
+    val accountComponent: String? = null,
+    val accountId: String? = null,
 )
 
 /** A call that should have been recorded and that CallVault never observed. */

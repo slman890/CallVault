@@ -3576,7 +3576,17 @@ private fun mergeDetail(context: android.content.Context, calls: Int, seconds: L
 
 @Composable
 private fun buildSubtitle(item: RecordingItem, mergedPartCount: Int = 0): String {
+    val simLabel = if (item.direction != null && !item.isImported && item.voipApp == null) {
+        val identity = when {
+            item.simSlotIndex != null -> stringResource(R.string.sim_slot_label, item.simSlotIndex + 1)
+            item.simAccountKey != null -> stringResource(R.string.sim_account_label, item.simAccountKey.take(6))
+            else -> stringResource(R.string.sim_unknown_label)
+        }
+        val name = item.simDisplayName ?: item.simCarrierName
+        if (name.isNullOrBlank()) identity else "$identity ($name)"
+    } else null
     val parts = buildList {
+        simLabel?.let { add(it) }
         formatWhen(item)?.let { add(it) }
         item.durationSeconds?.let { add(formatDuration(it)) }
         if (item.sizeBytes > 0) add(formatSize(item.sizeBytes))

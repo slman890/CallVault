@@ -718,4 +718,15 @@
     <string name="update_popup_text">Eine neue Version kann installiert werden. Das Update hält die Aufnahme zuverlässig und bringt die neuesten Korrekturen.</string>
     <string name="update_popup_update_now">Jetzt aktualisieren</string>
     <string name="update_popup_later">Später</string>
+
+    <!-- Local assistant: transcription diagnostics and SIM identity. -->
+    <string name="transcription_error_model_missing">The selected model is not fully installed. Complete its download and try again.</string>
+    <string name="transcription_error_audio_unreadable">The audio could not be read. The recording was kept. Try another copy or format.</string>
+    <string name="transcription_error_audio_stalled">Audio decoding produced no output for two minutes. The recording was kept. Try another copy or format.</string>
+    <string name="transcription_stage_loading">Loading model</string>
+    <string name="transcription_stage_decoding">Preparing audio</string>
+    <string name="transcription_stage_saving">Saving transcript</string>
+    <string name="sim_slot_label">SIM %1$d</string>
+    <string name="sim_account_label">Call account %1$s</string>
+    <string name="sim_unknown_label">SIM unknown</string>
 </resources>

@@ -10,7 +10,7 @@
     <!-- ========================================== -->
     <!-- GENERAL MESSAGES & APP LEVEL               -->
     <!-- ========================================== -->
-    <string name="app_name" translatable="false">CallVault</string>
+    <string name="app_name" translatable="false">Local Call Assistant</string>
     <string name="general_close">Close</string>
     <string name="voicemail_contact_label">Voicemail</string>
     <string name="general_recommended">Recommended</string>
@@ -923,4 +923,15 @@
     <string name="update_popup_text">A new version is ready to install. Updating keeps recording reliable and brings the latest fixes.</string>
     <string name="update_popup_update_now">Update now</string>
     <string name="update_popup_later">Later</string>
+
+    <!-- Local assistant: transcription diagnostics and SIM identity. -->
+    <string name="transcription_error_model_missing">The selected model is not fully installed. Complete its download and try again.</string>
+    <string name="transcription_error_audio_unreadable">The audio could not be read. The recording was kept. Try another copy or format.</string>
+    <string name="transcription_error_audio_stalled">Audio decoding produced no output for two minutes. The recording was kept. Try another copy or format.</string>
+    <string name="transcription_stage_loading">Loading model</string>
+    <string name="transcription_stage_decoding">Preparing audio</string>
+    <string name="transcription_stage_saving">Saving transcript</string>
+    <string name="sim_slot_label">SIM %1$d</string>
+    <string name="sim_account_label">Call account %1$s</string>
+    <string name="sim_unknown_label">SIM unknown</string>
 </resources>

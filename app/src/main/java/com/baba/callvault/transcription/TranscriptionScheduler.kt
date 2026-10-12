@@ -113,6 +113,7 @@ object TranscriptionScheduler {
                     setInputData(
                         workDataOf(
                             TranscriptionWorker.KEY_DISPLAY_NAME to displayName,
+                            TranscriptionWorker.KEY_MODEL_ID to AppPreferences(context).getTranscriptionModelId(),
                             // Absent unless the user picked one, which is what lets the worker tell
                             // "chose auto-detect" apart from "did not choose".
                             TranscriptionWorker.KEY_LANGUAGE to language,

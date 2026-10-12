@@ -717,4 +717,15 @@
     <string name="update_popup_text">Phiên bản mới đã sẵn sàng để cài đặt. Cập nhật giúp ghi âm ổn định và mang đến các bản sửa lỗi mới nhất.</string>
     <string name="update_popup_update_now">Cập nhật ngay</string>
     <string name="update_popup_later">Để sau</string>
+
+    <!-- Local assistant: transcription diagnostics and SIM identity. -->
+    <string name="transcription_error_model_missing">The selected model is not fully installed. Complete its download and try again.</string>
+    <string name="transcription_error_audio_unreadable">The audio could not be read. The recording was kept. Try another copy or format.</string>
+    <string name="transcription_error_audio_stalled">Audio decoding produced no output for two minutes. The recording was kept. Try another copy or format.</string>
+    <string name="transcription_stage_loading">Loading model</string>
+    <string name="transcription_stage_decoding">Preparing audio</string>
+    <string name="transcription_stage_saving">Saving transcript</string>
+    <string name="sim_slot_label">SIM %1$d</string>
+    <string name="sim_account_label">Call account %1$s</string>
+    <string name="sim_unknown_label">SIM unknown</string>
 </resources>

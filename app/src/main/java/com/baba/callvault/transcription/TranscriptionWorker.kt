@@ -18,10 +18,14 @@ import androidx.work.workDataOf
 import com.baba.callvault.R
 import com.baba.callvault.data.AppPreferences
 import com.baba.callvault.data.recordings.RecordingCatalog
+import com.baba.callvault.data.transcripts.db.TranscriptDatabase
+import com.baba.callvault.data.transcripts.db.TranscriptEntry
+import com.baba.callvault.data.transcripts.db.TranscriptState
 import com.baba.callvault.transcription.model.ModelRepository
 import com.baba.callvault.transcription.model.TranscriptionModel
 import com.baba.callvault.utils.AppLogger
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -61,19 +65,36 @@ class TranscriptionWorker(
         if (!userRequested) promote()
 
         val prefs = AppPreferences(applicationContext)
+        val single = inputData.getString(KEY_DISPLAY_NAME)
 
-        val model = TranscriptionModel.fromId(prefs.getTranscriptionModelId())
+        val model = TranscriptionModel.fromId(inputData.getString(KEY_MODEL_ID) ?: prefs.getTranscriptionModelId())
             ?: TranscriptionModel.DEFAULT
 
-        // Retry rather than fail: the model may still be downloading, and the work should pick up
-        // once it lands instead of the user having to ask again.
+        // Bound automatic download races; manual requests get an actionable failure at once.
         val modelPath = ModelRepository.pathFor(applicationContext, model)?.absolutePath
             ?: run {
-                AppLogger.i(TAG, "Model ${model.id} is not installed yet; will retry")
-                return@withContext Result.retry()
+                if (MissingModelPolicy.mayRetry(userRequested, runAttemptCount)) {
+                    AppLogger.i(TAG, "Selected model unavailable; retrying the automatic request")
+                    return@withContext Result.retry()
+                }
+                val message = applicationContext.getString(R.string.transcription_error_model_missing)
+                if (single != null) {
+                    val dao = TranscriptDatabase.get(applicationContext).transcriptDao()
+                    if (dao.findTranscript(single)?.state == TranscriptState.DONE)
+                        return@withContext Result.success()
+                    dao.upsertTranscript(
+                        TranscriptEntry(single, TranscriptState.FAILED, model.id,
+                            prefs.getTranscriptionLanguage(), System.currentTimeMillis(), message)
+                    )
+                    runCatching {
+                        TranscriptNotifier.announce(applicationContext, single, TranscriptNotice.Outcome.Failed)
+                    }.onFailure { if (it is CancellationException) throw it }
+                    // Its row says FAILED. Keep later appended requests runnable.
+                    return@withContext Result.success(workDataOf(KEY_ERROR to message))
+                }
+                return@withContext Result.failure(workDataOf(KEY_ERROR to message))
             }
 
-        val single = inputData.getString(KEY_DISPLAY_NAME)
         val names = if (single != null) {
             listOf(single)
         } else {
@@ -122,7 +143,8 @@ class TranscriptionWorker(
                     KEY_COMPLETED to latestCompleted,
                     KEY_TOTAL to latestTotal,
                     KEY_CURRENT to latestCurrent,
-                    KEY_PERCENT to percent
+                    KEY_PERCENT to percent,
+                    KEY_STAGE to TranscriptionEngine.stage.key
                 )
             )
         }
@@ -148,7 +170,7 @@ class TranscriptionWorker(
             }
         }
 
-        val transcribed = TranscriptionRunner(applicationContext).runBatch(
+        val transcribed = try { TranscriptionRunner(applicationContext).runBatch(
             modelId = model.id,
             modelPath = modelPath,
             language = TranscriptionLanguageChoice.resolve(
@@ -172,9 +194,9 @@ class TranscriptionWorker(
                 )
                 publishProgress(progress.percent(reportedPercent = 0, nowMs = SystemClock.elapsedRealtime()))
             }
-        )
-
-        abortWatcher.cancel()
+        ) } finally {
+            abortWatcher.cancel()
+        }
 
         // Anything left unfinished stays queued, so a later run resumes rather than restarts.
         if (isStopped && transcribed < names.size) Result.retry() else Result.success()
@@ -213,6 +235,7 @@ class TranscriptionWorker(
         const val KEY_USER_REQUESTED = "userRequested"
 
         const val KEY_DISPLAY_NAME = "displayName"
+        const val KEY_MODEL_ID = "modelId"
 
         /**
          * Input key carrying the language picked for this one recording, encoded by
@@ -233,5 +256,7 @@ class TranscriptionWorker(
 
         /** How far through the current recording, 0-100. Absent or 0 means "not known yet". */
         const val KEY_PERCENT = "percent"
+        const val KEY_STAGE = "stage"
+        const val KEY_ERROR = "error"
     }
 }

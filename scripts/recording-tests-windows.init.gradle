@@ -5,5 +5,8 @@
 gradle.beforeProject { project ->
     project.tasks.withType(org.gradle.api.tasks.testing.Test).configureEach {
         systemProperty 'robolectric.conscryptMode', 'OFF'
+        // Robolectric 4.12+ ships native SQLite for Windows. Its legacy backend keeps
+        // thread-local connection pointers which break Room's coroutine executors.
+        systemProperty 'robolectric.sqliteMode', 'NATIVE'
     }
 }

@@ -20,11 +20,15 @@ import kotlinx.coroutines.flow.Flow
  * stamp the Drive copy onto an existing local row without races. Suspend functions — call off the main
  * thread (Room enforces this).
  */
-/** Just the copy state of one recording, for [RecordingDao.observeCopies]. */
+/** Copy state and SIM display metadata, so late call-log snapshots refresh Home too. */
 data class RecordingCopies(
     val displayName: String,
     val localUri: String?,
     val driveUri: String?,
+    val simAccountKey: String? = null,
+    val simSlotIndex: Int? = null,
+    val simDisplayName: String? = null,
+    val simCarrierName: String? = null,
 )
 
 @Dao
@@ -35,10 +39,10 @@ interface RecordingDao {
      *
      * Home reads the catalog once per pass, so a Drive copy stamped afterwards by the copy worker or
      * the sweep was invisible until the app was relaunched. This is the change signal that fixes
-     * that: deliberately three columns rather than the whole row, because it exists to be compared
+     * that: a small projection rather than the whole row, because it exists to be compared
      * cheaply on every table write, not to render anything.
      */
-    @Query("SELECT displayName, localUri, driveUri FROM recordings")
+    @Query("SELECT displayName, localUri, driveUri, simAccountKey, simSlotIndex, simDisplayName, simCarrierName FROM recordings")
     fun observeCopies(): Flow<List<RecordingCopies>>
 
     /** All catalog rows, newest-first (the order Home renders). */
@@ -73,6 +77,9 @@ interface RecordingDao {
     /** Remembers the length read off the file, so it is never read twice. */
     @Query("UPDATE recordings SET durationSeconds = :durationSeconds WHERE displayName = :displayName")
     suspend fun setDuration(displayName: String, durationSeconds: Long)
+
+    @Query("UPDATE recordings SET simAccountKey = :accountKey, simSubscriptionId = :subscriptionId, simSlotIndex = :slotIndex, simDisplayName = :label, simCarrierName = :carrier WHERE displayName = :displayName")
+    suspend fun setSim(displayName: String, accountKey: String, subscriptionId: Int?, slotIndex: Int?, label: String?, carrier: String?)
 
     @Query("DELETE FROM recordings WHERE displayName = :displayName")
     suspend fun deleteByName(displayName: String)

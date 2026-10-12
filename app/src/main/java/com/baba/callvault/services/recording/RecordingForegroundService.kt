@@ -30,6 +30,7 @@ import com.baba.callvault.integrations.adb.AdbShell
 import com.baba.callvault.server.RecorderBackend
 import com.baba.callvault.R
 import com.baba.callvault.data.recordings.RecordingCatalog
+import com.baba.callvault.data.recordings.CallSimLookup
 import com.baba.callvault.data.waveform.RecordingExtrasRepository
 import com.baba.callvault.transcription.TranscriptionScheduler
 import com.baba.callvault.data.recordings.RecordingDirection
@@ -527,6 +528,10 @@ class RecordingForegroundService : Service() {
         val originalMetadata = activeSession.initializationMetadata
         // Capture mimeType before release (currentCodecEnum is not cleared by release()).
         val mimeType = activeSession.currentCodecEnum.mimeType
+        val simRequest = originalMetadata?.takeIf { activeSession.recordingStartedAtMs > 0L }?.let {
+            CallSimLookup.Request(activeSession.recordingStartedAtMs, System.currentTimeMillis(),
+                it.direction, it.rawPhoneNumber)
+        }
 
         // Release all resources held by the recording session, stopping the ADB transport and finalizing the recording file.
         activeSession.release()
@@ -584,14 +589,14 @@ class RecordingForegroundService : Service() {
 
                 // Route exactly once, after any rename has been applied.
                 routeFinalRecording(
-                    finalUri, mimeType, activeSession.lastCapturedByteCount, originalMetadata.direction
+                    finalUri, mimeType, activeSession.lastCapturedByteCount, originalMetadata.direction, simRequest
                 )
             }
         } else if (uriToRename != null) {
             // Phone number was already known at recording start — no rename needed.
             // Route the file with its current name immediately (once).
             routeFinalRecording(
-                uriToRename, mimeType, activeSession.lastCapturedByteCount, originalMetadata?.direction
+                uriToRename, mimeType, activeSession.lastCapturedByteCount, originalMetadata?.direction, simRequest
             )
         }
         // A capture AudioFlinger invalidated mid-call can leave the microphone indicator on with nothing recording;
@@ -677,7 +682,8 @@ class RecordingForegroundService : Service() {
         uri: Uri,
         mimeType: String,
         knownByteCount: Long? = null,
-        direction: RecordingDirection? = null
+        direction: RecordingDirection? = null,
+        simRequest: CallSimLookup.Request? = null,
     ) {
         val doc = DocumentFile.fromSingleUri(applicationContext, uri) ?: return
         val name = doc.name ?: return
@@ -739,6 +745,13 @@ class RecordingForegroundService : Service() {
         // CallLog fallback above). Written for every storage target, regardless of where the file lands.
         CoroutineScope(Dispatchers.IO).launch {
             RecordingCatalog.recordLocal(applicationContext, name, uri, sizeBytes, lastModified)
+            if (simRequest != null) {
+                runCatching {
+                    CallSimLookup.resolve(applicationContext, simRequest)?.let {
+                        RecordingCatalog.setSim(applicationContext, name, it)
+                    }
+                }.onFailure { AppLogger.w(TAG, "Could not store the call SIM snapshot") }
+            }
             // The BCR-compatible details file, when the user asked for one. Driven off the FINAL
             // name, after any call-log rename: a sidecar written against the pre-rename name would
             // sit beside nothing and be invisible to every tool that looks for it.

@@ -124,8 +124,9 @@ val extractLibphonenumberMetadata = tasks.register<ExtractMetadataTask>("extract
 // Android refuses to install a lower versionCode over a higher one, and uninstalling to get around
 // that would destroy the device's ADB pairing — so a versionCode that goes backwards is not a
 // cosmetic mistake, it strands that device on the old build.
-val ciVersionCode = providers.gradleProperty("versionCode").map { it.toIntOrNull() }.orElse(20451)
-val ciVersionName = providers.gradleProperty("versionName").orElse("2.4.5")
+val ciVersionCode = providers.gradleProperty("versionCode").map { it.toIntOrNull() }.orElse(20452)
+val ciVersionName = providers.gradleProperty("versionName").orElse("2.4.5-local.1")
+val localAssistantAppId = "io.github.slman890.localcallassistant"
 val ciBuildNumber = providers.gradleProperty("ciBuildNumber").orElse("Local")
 
 // -PisolateTestApp builds the debug variant under its own applicationId so instrumented tests can be
@@ -141,7 +142,7 @@ android {
     ndkVersion = "27.2.12479018"
 
     defaultConfig {
-        applicationId = "com.baba.callvault"
+        applicationId = localAssistantAppId
         minSdk = 30
         targetSdk = 36
         versionCode = ciVersionCode.get()
@@ -160,7 +161,7 @@ android {
         // Default provider authority. Only an isolated instrumented build overrides it; every normal
         // build resolves to exactly the string RecorderBinderProvider.AUTHORITY hardcodes, so release
         // output is unchanged.
-        manifestPlaceholders["recorderAuthority"] = "com.baba.callvault.recorder"
+        manifestPlaceholders["recorderAuthority"] = "$localAssistantAppId.recorder"
 
         buildConfigField("String", "CI_BUILD_NUMBER", "\"${ciBuildNumber.get()}\"")
 
@@ -246,7 +247,7 @@ android {
                 // moves; every normal build keeps the authority RecorderBinderProvider.AUTHORITY
                 // expects. The isolated build never uses that provider — the instrumented tests
                 // exercise the whisper.cpp JNI bridge, which needs no provider and no daemon.
-                manifestPlaceholders["recorderAuthority"] = "com.baba.callvault.instrtest.recorder"
+                manifestPlaceholders["recorderAuthority"] = "$localAssistantAppId.instrtest.recorder"
             }
         }
     }

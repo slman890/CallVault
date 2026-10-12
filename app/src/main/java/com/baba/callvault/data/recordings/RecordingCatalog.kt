@@ -97,6 +97,11 @@ object RecordingCatalog {
      * Only ever called with a positive value: a failed read stays uncached so a transient failure
      * cannot become a permanent wrong answer, which is the behaviour before this cache existed.
      */
+    suspend fun setSim(context: Context, displayName: String, sim: CallSimSnapshot) {
+        dao(context).setSim(displayName, sim.accountKey, sim.subscriptionId, sim.slotIndex,
+            sim.displayName, sim.carrierName)
+    }
+
     suspend fun setDuration(context: Context, displayName: String, durationSeconds: Long) {
         runCatching { dao(context).setDuration(displayName, durationSeconds) }
             .onFailure { AppLogger.w(TAG, "setDuration('$displayName') failed: ${it.message}") }

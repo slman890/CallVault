@@ -11,6 +11,7 @@ package com.baba.callvault.transcription
 import android.content.Context
 import android.net.Uri
 import android.os.SystemClock
+import com.baba.callvault.R
 import androidx.core.net.toUri
 import com.baba.callvault.data.AppPreferences
 import com.baba.callvault.system.interop.TranscriptSidecar
@@ -157,7 +158,17 @@ class TranscriptionRunner(
         // per-call run when a call ends, and a tap. Refusing at this one funnel is what stops the check
         // from being a thing three callers each have to remember, which is how the automatic paths came
         // to attempt 50-minute recordings while only the tap refused them.
-        val audioMs = audioDurationMs(uri)
+        val audioMs = try {
+            audioDurationMs(uri)
+        } catch (cancelled: CancellationException) {
+            withContext(NonCancellable) { dao.deleteFor(displayName) }
+            throw cancelled
+        } catch (failure: Exception) {
+            mark(displayName, TranscriptState.FAILED, modelId, language,
+                context.getString(R.string.transcription_error_audio_unreadable))
+            announce(displayName, TranscriptNotice.Outcome.Failed)
+            return false
+        }
         if (TranscriptionLengthLimit.isTooLong(audioMs)) {
             // Left with no row at all, as a stopped run is. FAILED would bar the recording from every
             // future automatic run — including the ones that become possible when decoding is chunked
@@ -297,7 +308,10 @@ class TranscriptionRunner(
             },
             onFailure = { failure ->
                 AppLogger.w(TAG, "Failed to transcribe $displayName: ${failure.message}")
-                mark(displayName, TranscriptState.FAILED, modelId, language, failure.message)
+                val message = if (failure is AudioDecodeStalledException)
+                    context.getString(R.string.transcription_error_audio_stalled)
+                else failure.message ?: context.getString(R.string.transcription_error_audio_unreadable)
+                mark(displayName, TranscriptState.FAILED, modelId, language, message)
                 // A failure was as silent as a success until now: the row gained a red icon on a
                 // page the user had been given no reason to open. Only a real failure reaches here
                 // — a stop, an abort and a refusal for length have all returned above.

@@ -7,6 +7,7 @@
  */
 
 package com.baba.callvault.ui.common
+import com.baba.callvault.transcription.TranscriptionStage
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -77,7 +78,8 @@ private fun WorkInfo?.toPillState(): TranscribingPillState {
         completed = progress.getInt(TranscriptionWorker.KEY_COMPLETED, 0),
         total = progress.getInt(TranscriptionWorker.KEY_TOTAL, 0),
         current = progress.getString(TranscriptionWorker.KEY_CURRENT),
-        percent = progress.getInt(TranscriptionWorker.KEY_PERCENT, 0)
+        percent = progress.getInt(TranscriptionWorker.KEY_PERCENT, 0),
+        stage = TranscriptionStage.fromKey(progress.getString(TranscriptionWorker.KEY_STAGE)),
     )
 }
 
@@ -119,7 +121,14 @@ fun TranscribingPill(state: TranscribingPillState, onClick: () -> Unit) {
 
 /** "3/12" for a backlog; the word alone for a single recording or before the count is known. */
 @Composable
-private fun TranscribingPillState.label(): String = when (this) {
+private fun TranscribingPillState.label(): String {
+    when (stage) {
+        TranscriptionStage.LOADING -> return stringResource(R.string.transcription_stage_loading)
+        TranscriptionStage.DECODING -> return stringResource(R.string.transcription_stage_decoding)
+        TranscriptionStage.SAVING -> return stringResource(R.string.transcription_stage_saving)
+        TranscriptionStage.RECOGNIZING, null -> Unit
+    }
+    return when (this) {
     TranscribingPillState.Hidden,
     TranscribingPillState.Starting -> stringResource(R.string.transcribing_pill_working)
     // The percentage replaces the word rather than joining it. "Transcribing" said nothing that the
@@ -131,6 +140,7 @@ private fun TranscribingPillState.label(): String = when (this) {
     is TranscribingPillState.Batch ->
         if (percent > 0) stringResource(R.string.transcribing_pill_progress_percent, position, total, percent)
         else stringResource(R.string.transcribing_pill_progress, position, total)
+    }
 }
 
 /**
