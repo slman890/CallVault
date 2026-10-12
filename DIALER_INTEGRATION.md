@@ -1,5 +1,7 @@
 # تطبيق اتصال وتسجيل وتفريغ واحد
 
+تحديث local.2: أُنجز مكون Phone أصلي داخل التطبيق باستخدام Telecom/Compose، بعد طلب المستخدم إضافة تطبيق اتصال. التفاصيل في `PHONE_APP_UPDATE.md`. لم يُنسخ كود Fossify؛ التقييم أدناه يصف خيار الدمج الذي سبق هذا التنفيذ.
+
 التقييم: 2026-10-12. يمكن بناء تطبيق موحد مفتوح المصدر، بشرط إضافة دور تطبيق الاتصال الافتراضي وواجهة المكالمة كاملة، مع إبقاء التسجيل بصلاحيات shell والتفريغ المحلي خلف طبقات مستقلة. لا يتيح دور default dialer وحده تسجيل uplink/downlink؛ [VOICE_CALL يحتاج CAPTURE_AUDIO_OUTPUT](https://developer.android.com/reference/android/media/MediaRecorder.AudioSource#VOICE_CALL).
 
 ## القاعدة المرشحة

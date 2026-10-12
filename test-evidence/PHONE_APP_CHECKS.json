@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-12",
+  "version": "2.4.5-local.2",
+  "build": "PASS",
+  "jvmTests": {
+    "suites": 43,
+    "tests": 334,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "jvmScope": "dialer, recordings, recording services; Windows Conscrypt OFF, SQLite NATIVE",
+  "telecomTests": {
+    "tests": 3,
+    "failures": 0,
+    "ignored": 0,
+    "status": "PASS",
+    "device": "emulator-5554 API 36",
+    "variant": "phoneUiOnly without JNI libraries, x86 runtime",
+    "seconds": 73.287,
+    "scenarios": [
+      "Incoming A: answer, mute, hold, resume, end",
+      "Incoming B: reject",
+      "Outgoing B selected in UI"
+    ],
+    "originalDefaultDialerRestored": "com.google.android.dialer"
+  },
+  "lint": {
+    "status": "FAIL",
+    "errors": 31,
+    "warnings": 264,
+    "existingBaselineErrorsUnchanged": true
+  },
+  "physicalPhone": "NOT_RUN",
+  "realSimAndEsim": "NOT_RUN",
+  "realBluetoothAndRecording": "NOT_TESTED",
+  "whisperInference": "NOT_RUN",
+  "apk": {
+    "file": "../Local-Call-Assistant-2.4.5-local.2-debug.apk",
+    "bytes": 88507978,
+    "sha256": "5d7d0d91061f808c203149f6e38c58673403815495b99d65de629834f734795d",
+    "applicationId": "io.github.slman890.localcallassistant",
+    "versionCode": 20453,
+    "minSdk": 30,
+    "targetSdk": 36,
+    "abi": "arm64-v8a",
+    "nativeLibraries": 18,
+    "signatureVerification": "PASS",
+    "testConnectionServiceInDeliveryApk": false
+  },
+  "privacy": {
+    "newCloudDependencies": 0,
+    "phoneNetworkRequests": 0,
+    "rawSimAccountIdsPersisted": false
+  }
+}

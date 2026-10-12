@@ -12,6 +12,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
+import androidx.activity.compose.BackHandler
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricPrompt
@@ -28,6 +29,9 @@ import com.baba.callvault.ui.navigation.OpenTranscriptRequest
 import com.baba.callvault.ui.screens.AppLockScreen
 import com.baba.callvault.ui.screens.AppLockUi
 import com.baba.callvault.ui.screens.appLockUi
+import com.baba.callvault.dialer.PhoneEntry
+import com.baba.callvault.dialer.PhoneScreen
+import com.baba.callvault.ui.theme.CallVaultTheme
 
 /**
  * MainActivity is the single Android Activity entry point for CallVault.
@@ -47,6 +51,8 @@ class MainActivity : AppCompatActivity() {
      * would re-lock the app the instant the prompt appeared and ask again for ever.
      */
     private var isUnlocked by mutableStateOf(false)
+    private var showPhone by mutableStateOf(true)
+    private var dialNumber by mutableStateOf("")
 
     /** Guards against a second prompt while one is already on screen, for the same reason. */
     private var isPrompting = false
@@ -102,6 +108,8 @@ class MainActivity : AppCompatActivity() {
         notificationDestination = destinationOf(intent)
         openRecording = recordingOf(intent)
         openTranscript = transcriptOf(intent)
+        showPhone = savedInstanceState?.getBoolean("showPhone") ?: PhoneEntry.wantsPhone(intent)
+        dialNumber = PhoneEntry.number(intent)
         // Carry an unlock across an Activity recreation — see [onSaveInstanceState] for why this is
         // only ever set for a configuration change. Read before setContent so the first composition
         // draws the app rather than the lock screen and then swaps.
@@ -109,7 +117,11 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContent {
             when (appLockUi(AppLock.isEnabled(this), isUnlocked, promptDismissed)) {
-                AppLockUi.APP -> AppNavigationScreen(
+                AppLockUi.APP -> {
+                    BackHandler(enabled = !showPhone) { showPhone = true }
+                    if (showPhone) CallVaultTheme {
+                        PhoneScreen(initialNumber = dialNumber, onOpenLibrary = { showPhone = false })
+                    } else AppNavigationScreen(
                     notificationDestination = notificationDestination,
                     onNotificationDestinationHandled = {
                         notificationDestination = NotificationDestination.None
@@ -118,7 +130,8 @@ class MainActivity : AppCompatActivity() {
                     onOpenRecordingHandled = { openRecording = null },
                     openTranscript = openTranscript,
                     onOpenTranscriptHandled = { openTranscript = null }
-                )
+                    )
+                }
                 // Background only. The prompt is coming or already up, so there is nothing to act on
                 // — drawing the door here is what flashed an "Unlock" card on every open.
                 AppLockUi.WAITING -> AppLockScreen(onUnlock = ::promptForUnlock, showDoor = false)
@@ -144,6 +157,8 @@ class MainActivity : AppCompatActivity() {
         notificationDestination = destinationOf(intent)
         openRecording = recordingOf(intent)
         openTranscript = transcriptOf(intent)
+        showPhone = PhoneEntry.wantsPhone(intent)
+        dialNumber = PhoneEntry.number(intent)
     }
 
     /**
@@ -216,6 +231,7 @@ class MainActivity : AppCompatActivity() {
      */
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        outState.putBoolean("showPhone", showPhone)
         if (isChangingConfigurations) outState.putBoolean(KEY_IS_UNLOCKED, isUnlocked)
     }
 

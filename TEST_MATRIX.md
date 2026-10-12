@@ -1,5 +1,21 @@
 # مصفوفة اختبار التسجيل الحقيقي
 
+## تحقق مكون الهاتف local.2 — 2026-10-12
+
+| ID | التجربة | الحالة والدليل |
+|---|---|---|
+| D01 | ROLE_DIALER وربط InCallService | PASS على المحاكي؛ أعيد Google Phone بعد الاختبار |
+| D02 | واردة على حساب A: رد، كتم، انتظار، استئناف، إنهاء | PASS — TelecomPhoneInstrumentedTest |
+| D03 | واردة على حساب B: رفض | PASS — TelecomPhoneInstrumentedTest |
+| D04 | صادرة عبر الحساب B المختار في الواجهة | PASS — TelecomPhoneInstrumentedTest |
+| D05 | لوحة عربية ووضع أفقي، وزر الإنهاء داخل الشاشة | PASS في فحص صور الاختبار |
+| P01 | واردة وصادرة على SIM/eSIM حقيقي | NOT_RUN |
+| P02 | مكالمة هاتف حقيقية على شاشة القفل | NOT_RUN |
+| P03 | انتظار ومؤتمر وشبكة شركة الاتصالات | NOT_RUN |
+| P04 | تبدل Bluetooth السيارة وتسجيل الطرفين | NOT_TESTED |
+
+D01–D05 تخص حسابين اصطناعيين داخل APK اختبار مستقل، وvariant `phoneUiOnly` دون JNI على المحاكي API 36. لا تنتقل نتائجها إلى صفوف التسجيل الحقيقي، ولا تثبت Whisper أو الصوت أو SIM فعليًا. فحوص النسخة الكاملة في `test-evidence/PHONE_APP_CHECKS.json`.
+
 تحديث 2026-10-12: نسخة Local Call Assistant مستقلة تضيف SIM snapshots وإصلاحات للتفريغ. اختبارات الهاتف لهذه النسخة ما زالت NOT_RUN؛ رقم إصدارها ودليل تجربتها في `LOCAL_ASSISTANT_UPDATE.md`. صفوف الجدول الأصلية أدناه تخص baseline، وتكرر على النسخة الجديدة قبل إعلان القبول.
 
 آخر تحديث: 2026-10-11. بوابة Bluetooth: **NOT_TESTED**.

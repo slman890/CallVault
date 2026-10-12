@@ -1,5 +1,7 @@
 # المعمارية — الواقع الحالي والهدف بعد بوابة التسجيل
 
+تحديث local.2: مكون `dialer` أصلي داخل `:app`: PhoneRepository/PhoneViewModel → PhoneScreen، وTelecom → LocalInCallService → DialerCalls → InCallActivity. يستخدم المسجل أحداث PHONE_STATE القائمة؛ خدمة الهاتف لا تبدأ مسجلًا ثانيًا. يلتقط حساب المكالمة الفعلي لتصنيف SIM، ثم يعود إلى CallLog عند عدم توفره. انظر `PHONE_APP_UPDATE.md`. الفقرة التالية تصف local.1 السابق.
+
 تحديث 2026-10-12: أضيفت snapshots للشريحة داخل RecordingDatabase v4، وحماية من تعليق فك الصوت والنموذج الناقص ومراحل التفريغ. لم تُفصل Modules ولم يُدمج dialer. الهوية المثبتة أصبحت `io.github.slman890.localcallassistant`؛ source namespace بقي `com.baba.callvault` لحماية أسماء JNI/AIDL. الوثيقة أدناه توثق baseline السابق؛ التغييرات الحالية في `LOCAL_ASSISTANT_UPDATE.md`.
 
 المراجعة عند commit `9933d929e21cf8b65d16d6a47847d1fe1a033cae`. لا Modules جديدة حاليًا؛ `settings.gradle.kts` يضم `:app` فقط. فصل الوحدات مؤجل إلى نجاح Bluetooth.

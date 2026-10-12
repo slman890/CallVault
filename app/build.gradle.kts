@@ -124,8 +124,8 @@ val extractLibphonenumberMetadata = tasks.register<ExtractMetadataTask>("extract
 // Android refuses to install a lower versionCode over a higher one, and uninstalling to get around
 // that would destroy the device's ADB pairing — so a versionCode that goes backwards is not a
 // cosmetic mistake, it strands that device on the old build.
-val ciVersionCode = providers.gradleProperty("versionCode").map { it.toIntOrNull() }.orElse(20452)
-val ciVersionName = providers.gradleProperty("versionName").orElse("2.4.5-local.1")
+val ciVersionCode = providers.gradleProperty("versionCode").map { it.toIntOrNull() }.orElse(20453)
+val ciVersionName = providers.gradleProperty("versionName").orElse("2.4.5-local.2")
 val localAssistantAppId = "io.github.slman890.localcallassistant"
 val ciBuildNumber = providers.gradleProperty("ciBuildNumber").orElse("Local")
 
@@ -133,9 +133,18 @@ val ciBuildNumber = providers.gradleProperty("ciBuildNumber").orElse("Local")
 // run on a device that is already carrying a working release build. Off by default: it must not
 // change the ordinary `installDebug` loop, which deliberately reinstalls over the top.
 val isolateTestApp = providers.gradleProperty("isolateTestApp").isPresent
+// UI/Telecom tests on x86 emulators do not use JNI. Excluding JNI avoids forcing the whole
+// application process through ARM translation. This opt-in APK must never be distributed.
+val phoneUiOnly = providers.gradleProperty("phoneUiOnly").isPresent
+if (phoneUiOnly && isReleaseBuildRequested) {
+    throw GradleException("phoneUiOnly is for emulator debug tests, never release builds")
+}
 
 android {
     namespace = "com.baba.callvault"
+    if (phoneUiOnly) {
+        packaging.jniLibs.excludes.add("**/*.so")
+    }
     compileSdk = 36
 
     // Required for libaudiohandoff.so, the native half of "Resilient recording".

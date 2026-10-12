@@ -27,6 +27,10 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
+import com.baba.callvault.MainActivity
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -79,6 +83,7 @@ fun HubScreen(
     statusCards: @Composable () -> Unit,
 ) {
     val brand = LocalCvBrand.current
+    val context = LocalContext.current
 
     CvScaffold(
         modifier = modifier.fillMaxSize(),
@@ -108,6 +113,15 @@ fun HubScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item(span = { GridItemSpan(HUB_COLUMNS) }) { statusCards() }
+
+            item(span = { GridItemSpan(HUB_COLUMNS) }) {
+                HubCard(icon = Icons.Filled.Call, accent = MaterialTheme.colorScheme.primary,
+                    count = stringResource(R.string.phone_title),
+                    title = stringResource(R.string.phone_dialpad),
+                    body = stringResource(R.string.phone_hub_body),
+                    onClick = { context.startActivity(Intent(context, MainActivity::class.java).setAction(Intent.ACTION_DIAL)
+                        .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)) })
+            }
 
             item(span = { GridItemSpan(HUB_COLUMNS) }) {
                 CvSectionHeader(text = stringResource(R.string.home_hub_library_title))

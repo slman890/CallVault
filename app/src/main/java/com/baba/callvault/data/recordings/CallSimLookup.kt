@@ -53,6 +53,7 @@ object CallSimLookup {
             .joinToString("") { "%02x".format(it) }
 
     suspend fun resolve(context: Context, request: Request): CallSimSnapshot? {
+        com.baba.callvault.dialer.DialerCalls.simForRecording(request)?.let { return it }
         repeat(6) { attempt ->
             val entries = CallLogReader.entriesSince(context, request.startedAtMs - 180_000L, includeAccounts = true)
             val entry = matchingAccount(entries, request)
@@ -65,14 +66,19 @@ object CallSimLookup {
     private fun snapshot(context: Context, entry: CallLogEntry): CallSimSnapshot? {
         val component = ComponentName.unflattenFromString(entry.accountComponent.orEmpty()) ?: return null
         val rawId = entry.accountId?.takeIf { it.isNotBlank() } ?: return null
-        val key = accountKey(component.flattenToString(), rawId)
+        return fromHandle(context, PhoneAccountHandle(component, rawId))
+    }
+
+    fun fromHandle(context: Context, handle: PhoneAccountHandle): CallSimSnapshot? {
+        if (handle.id.isBlank()) return null
+        val key = accountKey(handle.componentName.flattenToString(), handle.id)
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED)
             return CallSimSnapshot(key)
         // The handle-based API is available from API 30 (our minSdk). Never parse account IDs as
         // subscription IDs and never substitute the default SIM: either would mislabel dual-SIM calls.
         return runCatching {
             val telephony = context.getSystemService(TelephonyManager::class.java)
-            val subId = telephony?.getSubscriptionId(PhoneAccountHandle(component, rawId))
+            val subId = telephony?.getSubscriptionId(handle)
                 ?.takeIf { it >= 0 } ?: return@runCatching CallSimSnapshot(key)
             val info = context.getSystemService(SubscriptionManager::class.java)?.getActiveSubscriptionInfo(subId)
             CallSimSnapshot(key, subId, info?.simSlotIndex?.takeIf { it >= 0 },
